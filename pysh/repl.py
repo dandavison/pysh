@@ -1,3 +1,4 @@
+import readline
 from sys import stdout
 
 from pysh.interpreter import execute
