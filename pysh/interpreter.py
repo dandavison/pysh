@@ -12,19 +12,26 @@ def execute(line):
     parse_tree = GRAMMAR.parse(line)
     node_visitor = PyshNodeVisitor()
     node_visitor.visit(parse_tree)
-    execute_pipeline(node_visitor.commands)
+    Pipeline(node_visitor.commands).execute()
 
 
-def execute_pipeline(commands):
-    assert len(commands) == 1
-    [command] = commands
+class Pipeline:
 
-    pid = os.fork()
+    def __init__(self, commands):
+        self.commands = commands
 
-    if pid == 0:
-        os.execvp(command, [command])
+    def execute(self):
 
-    os.wait()
+        for command in self.commands:
+            fd = self.fork_exec(command)
+        for _ in self.commands:
+            os.wait()
+
+    def fork_exec(self, command):
+        pid = os.fork()
+
+        if pid == 0:
+            os.execvp(command, [command])
 
 
 class PyshNodeVisitor(NodeVisitor):
