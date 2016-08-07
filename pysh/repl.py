@@ -11,4 +11,5 @@ def repl():
 
 
 def display_prompt():
-    stdout.write("૭ ")
+    snake = "🐍"  # U+1F40D
+    stdout.write("%s   " % snake)
