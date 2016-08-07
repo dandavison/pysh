@@ -33,8 +33,14 @@ class PyshNodeVisitor(NodeVisitor):
         super().__init__()
         self.commands = []
 
+    def visit_commands(self, node, children):
+        pass
+
     def visit_command(self, node, children):
         self.commands.append(node.text)
+
+    def generic_visit(self, node, children=None):
+        pass
 
 
 if __name__ == '__main__':

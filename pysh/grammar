@@ -1,1 +1,2 @@
+commands = command (" | " command)*
 command = ~"\w+"
