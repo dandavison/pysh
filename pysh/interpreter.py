@@ -47,8 +47,6 @@ class Pipeline:
                 os.dup2(out_pipe[WRITE], sys.stdout.fileno())
                 os.close(out_pipe[READ])
 
-            # TODO: Commands with multiple words
-            command = [command]
             # TODO: Handle OSError?
             os.execvp(command[0], command)
         else:
@@ -63,12 +61,14 @@ class PyshNodeVisitor(NodeVisitor):
     def __init__(self):
         super().__init__()
         self.pipeline = []
-
-    def visit_pipeline(self, node, children):
-        pass
+        self.current_command = []
 
     def visit_command(self, node, children):
-        self.pipeline.append(node.text)
+        self.pipeline.append(self.current_command)
+        self.current_command = []
+
+    def visit_word(self, node, children):
+        self.current_command.append(node.text)
 
     def generic_visit(self, node, children=None):
         pass
