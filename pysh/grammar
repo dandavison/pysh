@@ -1,3 +1,4 @@
+line = pipeline?
 pipeline = command (pipe command)*
 pipe = ~" *\| *"
 command = word (ws word)*

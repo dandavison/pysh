@@ -33,6 +33,8 @@ class Pipeline:
         """
         Fork and exec first command passing output to the rest of the pipeline.
         """
+        if not commands:
+            return
         command, *remaining_commands = commands
         is_first = not in_pipe[WRITE]
         is_last = not remaining_commands
@@ -52,8 +54,7 @@ class Pipeline:
         else:
             if out_pipe:
                 os.close(out_pipe[WRITE])
-            if remaining_commands:
-                self._execute(remaining_commands, out_pipe)
+            self._execute(remaining_commands, out_pipe)
 
 
 class PyshNodeVisitor(NodeVisitor):
