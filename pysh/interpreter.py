@@ -15,7 +15,7 @@ def execute(line):
     parse_tree = GRAMMAR.parse(line)
     node_visitor = PyshNodeVisitor()
     node_visitor.visit(parse_tree)
-    Pipeline(node_visitor.commands).execute()
+    Pipeline(node_visitor.pipeline).execute()
 
 
 class Pipeline:
@@ -62,13 +62,13 @@ class PyshNodeVisitor(NodeVisitor):
 
     def __init__(self):
         super().__init__()
-        self.commands = []
+        self.pipeline = []
 
-    def visit_commands(self, node, children):
+    def visit_pipeline(self, node, children):
         pass
 
     def visit_command(self, node, children):
-        self.commands.append(node.text)
+        self.pipeline.append(node.text)
 
     def generic_visit(self, node, children=None):
         pass

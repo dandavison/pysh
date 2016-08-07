@@ -1,2 +1,2 @@
-commands = command (" | " command)*
+pipeline = command (" | " command)*
 command = ~"\w+"
