@@ -15,15 +15,20 @@ def execute(line):
     parse_tree = GRAMMAR.parse(line)
     node_visitor = PyshNodeVisitor()
     node_visitor.visit(parse_tree)
-    Pipeline(node_visitor.pipeline).execute()
+    Pipeline(node_visitor.pipeline, node_visitor.output_file).execute()
 
 
 class Pipeline:
 
-    def __init__(self, commands):
+    def __init__(self, commands, output_file):
         self.commands = commands
+        self.output_file = output_file
 
     def execute(self):
+        if self.output_file:
+            with open(self.output_file, 'w') as fp:
+                os.dup2(fp.fileno(), sys.stdout.fileno())
+
         in_pipe = (sys.stdout.fileno(), None)
         self._execute(self.commands, in_pipe)
         for _ in self.commands:
@@ -69,6 +74,7 @@ class PyshNodeVisitor(NodeVisitor):
         super().__init__()
         self.pipeline = []
         self.current_command = []
+        self.output_file = None
 
     def visit_command(self, node, children):
         self.pipeline.append(self.current_command)
@@ -76,6 +82,9 @@ class PyshNodeVisitor(NodeVisitor):
 
     def visit_word(self, node, children):
         self.current_command.append(node.text)
+
+    def visit_output_file_path(self, node, children):
+        self.output_file = node.text
 
     def generic_visit(self, node, children=None):
         pass

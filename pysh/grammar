@@ -1,6 +1,8 @@
-line = pipeline?
+line = pipeline? ws? output_redirect?
+output_redirect = (">" ws? output_file_path)
+output_file_path = ~"[-./\w]+"
 pipeline = command (pipe command)*
 pipe = ~" *\| *"
 command = word (ws word)*
-word = ~"[^ |]+"
+word = ~"[^ |><]+"
 ws = ~" +"
