@@ -15,8 +15,7 @@ class Pysh:
     def run(self):
         while True:
             self.display_prompt()
-            statuses = execute(input())
-            self.status = int(any(statuses))
+            self.status = execute(input())
 
     def display_prompt(self):
         color = colored.red if self.status > 0 else colored.cyan

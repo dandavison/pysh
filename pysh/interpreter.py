@@ -74,7 +74,7 @@ class Interpreter(BuiltinsMixin, PyshNodeVisitor):
             pid, status = os.wait()
             statuses.append(status >> 8)
 
-        return statuses
+        return int(any(statuses))
 
     def _execute(self, commands, in_pipe):
         """
