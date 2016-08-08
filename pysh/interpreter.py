@@ -21,6 +21,9 @@ class PyshNodeVisitor(NodeVisitor):
         self.pipeline.append(self.current_command)
         self.current_command = []
 
+    def visit_builtin(self, node, children):
+        self.builtins.append(node.text)
+
     def visit_verb(self, node, children):
         self.current_command.append(node.text)
 
@@ -34,18 +37,31 @@ class PyshNodeVisitor(NodeVisitor):
         pass
 
 
-class Interpreter(PyshNodeVisitor):
+class BuiltinsMixin:
+
+    def execute_cd(self, args):
+        [path] = args
+        os.chdir(path)
+        return 0
+
+
+class Interpreter(BuiltinsMixin, PyshNodeVisitor):
 
     def __init__(self, line):
         super().__init__()
         self.pipeline = []
         self.current_command = []
         self.output_file = None
+        self.builtins = []
 
         parse_tree = GRAMMAR.parse(line)
         self.visit(parse_tree)
 
     def execute(self):
+        if self.builtins:
+            [builtin] = self.pipeline
+            return getattr(self, 'execute_' + builtin[0])(builtin[1:])
+
         if self.output_file:
             with open(self.output_file, 'w') as fp:
                 os.dup2(fp.fileno(), sys.stdout.fileno())
