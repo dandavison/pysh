@@ -4,6 +4,8 @@ import sys
 from parsimonious import Grammar
 from parsimonious import NodeVisitor
 
+from pysh.path_pattern import get_matching_paths
+
 
 READ, WRITE = 0, 1
 
@@ -29,6 +31,10 @@ class PyshNodeVisitor(NodeVisitor):
 
     def visit_word(self, node, children):
         self.current_command.append(node.text)
+
+    def visit_pysh_path_pattern(self, node, children):
+        pysh_path_pattern = node.text[1:]
+        self.current_command.extend(get_matching_paths(pysh_path_pattern))
 
     def visit_output_file_path(self, node, children):
         self.output_file = node.text
