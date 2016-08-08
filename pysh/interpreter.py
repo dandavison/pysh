@@ -12,7 +12,7 @@ with open(os.path.join(os.path.dirname(__file__), 'grammar')) as fp:
 
 
 def execute(line):
-    Interpreter(line).execute()
+    return Interpreter(line).execute()
 
 
 class PyshNodeVisitor(NodeVisitor):
@@ -49,11 +49,13 @@ class Interpreter(PyshNodeVisitor):
 
         in_pipe = (sys.stdout.fileno(), None)
         self._execute(self.pipeline, in_pipe)
+
+        statuses = []
         for _ in self.pipeline:
             pid, status = os.wait()
-            status >>=8
-            if status != 0:
-                sys.exit(status)
+            statuses.append(status >> 8)
+
+        return statuses
 
     def _execute(self, commands, in_pipe):
         """

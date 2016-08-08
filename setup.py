@@ -25,7 +25,7 @@ setup(
     install_requires=parse_requirements(),
     entry_points={
         'console_scripts': [
-            'pysh = pysh.repl:repl',
+            'pysh = pysh.repl:main',
         ],
     },
 )
