@@ -27,7 +27,10 @@ class Pipeline:
         in_pipe = (sys.stdout.fileno(), None)
         self._execute(self.commands, in_pipe)
         for _ in self.commands:
-            os.wait()
+            pid, status = os.wait()
+            status >>=8
+            if status != 0:
+                sys.exit(status)
 
     def _execute(self, commands, in_pipe):
         """
@@ -49,8 +52,11 @@ class Pipeline:
                 os.dup2(out_pipe[WRITE], sys.stdout.fileno())
                 os.close(out_pipe[READ])
 
-            # TODO: Handle OSError?
-            os.execvp(command[0], command)
+            try:
+                os.execvp(command[0], command)
+            except OSError as exc:
+                sys.stderr.write('%s: %s\n' % (command[0], exc))
+                sys.exit(exc.errno)
         else:
             if out_pipe:
                 os.close(out_pipe[WRITE])
