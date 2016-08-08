@@ -1,6 +1,6 @@
 import os
 import readline
-from sys import stdout
+import sys
 
 from clint.textui import colored
 
@@ -19,11 +19,15 @@ class Pysh:
 
     def display_prompt(self):
         color = colored.red if self.status > 0 else colored.cyan
-        stdout.write("%s %s   " % (
+        sys.stdout.write("%s %s   " % (
             color(os.getcwd(), bold=True),
             "🐍"  # U+1F40D,
         ))
 
 
 def main():
-    Pysh().run()
+    try:
+        Pysh().run()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        sys.exit(0)
