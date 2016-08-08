@@ -21,6 +21,9 @@ class PyshNodeVisitor(NodeVisitor):
         self.pipeline.append(self.current_command)
         self.current_command = []
 
+    def visit_verb(self, node, children):
+        self.current_command.append(node.text)
+
     def visit_word(self, node, children):
         self.current_command.append(node.text)
 

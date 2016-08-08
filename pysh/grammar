@@ -1,8 +1,11 @@
 line = pipeline? ws? output_redirect?
 output_redirect = (">" ws? output_file_path)
 output_file_path = ~"[-./\w]+"
+file_path = ~"[-./\w]+"
 pipeline = command (pipe command)*
 pipe = ~" *\| *"
-command = word (ws word)*
+command = verb (ws word)*
+verb = builtin / file_path
+builtin = "cd"
 word = ~"[^ |><]+"
 ws = ~" +"
