@@ -12,17 +12,35 @@ with open(os.path.join(os.path.dirname(__file__), 'grammar')) as fp:
 
 
 def execute(line):
-    parse_tree = GRAMMAR.parse(line)
-    node_visitor = PyshNodeVisitor()
-    node_visitor.visit(parse_tree)
-    Pipeline(node_visitor.pipeline, node_visitor.output_file).execute()
+    Interpreter(line).execute()
 
 
-class Pipeline:
+class PyshNodeVisitor(NodeVisitor):
 
-    def __init__(self, commands, output_file):
-        self.commands = commands
-        self.output_file = output_file
+    def visit_command(self, node, children):
+        self.pipeline.append(self.current_command)
+        self.current_command = []
+
+    def visit_word(self, node, children):
+        self.current_command.append(node.text)
+
+    def visit_output_file_path(self, node, children):
+        self.output_file = node.text
+
+    def generic_visit(self, node, children=None):
+        pass
+
+
+class Interpreter(PyshNodeVisitor):
+
+    def __init__(self, line):
+        super().__init__()
+        self.pipeline = []
+        self.current_command = []
+        self.output_file = None
+
+        parse_tree = GRAMMAR.parse(line)
+        self.visit(parse_tree)
 
     def execute(self):
         if self.output_file:
@@ -30,8 +48,8 @@ class Pipeline:
                 os.dup2(fp.fileno(), sys.stdout.fileno())
 
         in_pipe = (sys.stdout.fileno(), None)
-        self._execute(self.commands, in_pipe)
-        for _ in self.commands:
+        self._execute(self.pipeline, in_pipe)
+        for _ in self.pipeline:
             pid, status = os.wait()
             status >>=8
             if status != 0:
@@ -66,28 +84,6 @@ class Pipeline:
             if out_pipe:
                 os.close(out_pipe[WRITE])
             self._execute(remaining_commands, out_pipe)
-
-
-class PyshNodeVisitor(NodeVisitor):
-
-    def __init__(self):
-        super().__init__()
-        self.pipeline = []
-        self.current_command = []
-        self.output_file = None
-
-    def visit_command(self, node, children):
-        self.pipeline.append(self.current_command)
-        self.current_command = []
-
-    def visit_word(self, node, children):
-        self.current_command.append(node.text)
-
-    def visit_output_file_path(self, node, children):
-        self.output_file = node.text
-
-    def generic_visit(self, node, children=None):
-        pass
 
 
 if __name__ == '__main__':
